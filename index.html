@@ -1,102 +1,195 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-		<title>assignment1</title>
-		<style>
-			body { margin: 0; }
-			.container-div {
-            /* div center*/
+<head>
+    <meta charset="utf-8">
+    <title>Assignment 1</title>
+    <style>
+        body {
+            margin: 100px;
+        }
+        .container-div {
             width: 100%;
             height: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
         }
-
         .subdivision-container {
             display: flex;
             justify-content: center;
             align-items: center;
         }
-
         #container0,
         #container1 {
             width: 50%;
         }
-		</style>
+    </style>
     <script type="importmap">
-        {
-          "imports": {
+    {
+        "imports": {
             "three": "https://unpkg.com/three@0.147.0/build/three.module.js",
             "three/addons/": "https://unpkg.com/three@0.147.0/examples/jsm/"
-          }
         }
+    }
     </script>
-	</head>
-	<body>
-		<h1 style="text-align: center;">Assignment 1: Surface Mesh Simplication and Subdivision</h1>
-		<h2>Introduction</h2>
-		<p>For this assignment, you will be implementing two algorithms covering: 1. Loop Subdivision 2. Quadratic Error Mesh Decimation over any 3D object. 
-			<ul>
-				<li><a href="https://en.wikipedia.org/wiki/Subdivision_surface#Loop_subdivision_surface">Loop Subdivision</a></li>
-				<li><a href="https://www.cs.cmu.edu/~./garland/Papers/quadrics.pdf">Quadric Error Mesh Decimation</a></li>
-			</ul>
-			We have made available a visualization tool using the Three.js library implemented in "./js/assignment1.js" and an example implementation located in "./assignments/assignment1.py". Your objective is to create implementations for both "subdivision_loop" and "simplify_quadric_error". You are encouraged to use a programming language with which you are comfortable. The output results should be in the obj format, and you must visualize your outcomes accordingly. 
-			<br><br>
-			<b>How to Submit: </b>Please submit this template file along with your implementation as a zip file. The zip file should contain your source code, the generated results in OBJ mesh format, and a report that has been modified using this HTML file. The report should comprise your results and a concise explanation of your implementation. Alternatively, you may choose to create a GitHub repository containing all these elements and provide a link for submission.
-			<br><br>
-			<b>Grading: </b>The grading is based on the correctness of your implementation. You are encouraged to use the visualization tool to debug your implementation. You can also use the visualization tool to test your implementation on other 3D models. You can find an example of 3D model in the "./assets" folder.</p>
-		</p>
-		<h2>Background</h2>
-		
-		<h2>Data Structure</h2>
-		<p>
-			<b>Design Logic </b>
-			<br><br>
-			<b>Implement Details </b>
+</head>
+<body>
+    <h1 style="text-align: center;">Assignment 1: Surface Mesh Simplification and Subdivision</h1>
+    <h2>Introduction</h2>
+    <p>
+        For this assignment, you will be implementing two algorithms covering:
+        1. Loop Subdivision
+        2. Quadratic Error Mesh Decimation over any 3D object. 
+        <ul>
+            <li><a href="https://en.wikipedia.org/wiki/Subdivision_surface#Loop_subdivision_surface">Loop Subdivision</a></li>
+            <li><a href="https://www.cs.cmu.edu/~./garland/Papers/quadrics.pdf">Quadric Error Mesh Decimation</a></li>
+        </ul>
+        We have made available a visualization tool using the Three.js library implemented in "./js/assignment1.js" and an example implementation located in "./assignments/assignment1.py". Your objective is to create implementations for both "subdivision_loop" and "simplify_quadric_error". You are encouraged to use a programming language with which you are comfortable. The output results should be in the obj format, and you must visualize your outcomes accordingly. 
+        <br><br>
+        <b>How to Submit:</b> Please submit this template file along with your implementation as a zip file. The zip file should contain your source code, the generated results in OBJ mesh format, and a report that has been modified using this HTML file. The report should comprise your results and a concise explanation of your implementation. Alternatively, you may choose to create a GitHub repository containing all these elements and provide a link for submission.
+        <br><br>
+        <b>Grading:</b> The grading is based on the correctness of your implementation. You are encouraged to use the visualization tool to debug your implementation. You can also use the visualization tool to test your implementation on other 3D models. You can find an example of 3D model in the "./assets" folder.
+    </p>
+    <h2>Loop Subdivision</h2>
+    <h2>Background</h2>
+    <p>
+        Loop Subdivision is a surface subdivision scheme used to create smooth surfaces from coarse polygonal geometry. It's used in computer graphics for models and animations where a smoother surface representation is required. It adds new vertices (odd) along edges and updates the position of original vertices (even).
+    </p>
+    <h2>Data Structure</h2>
+    <p>The data structures involved are:</p>
+    <ul>
+        <li><strong>Vertices</strong>: A NumPy array of vertex positions in 3D space.</li>
+        <li><strong>Faces</strong>: A NumPy array that defines the vertices of each triangular face.</li>
+        <li><strong>Edges</strong>: A NumPy array that lists the vertex pairs that make up the mesh edges.</li>
+        <li><strong>Unique, Inverse</strong>: Arrays used to identify unique edges and their mapping.</li>
+        <li><strong>Edge_inter, edge_bound</strong>: Arrays that store indices for interior and boundary edges.</li>
+    </ul>
+    <h2>Design Logic</h2>
+    <p>The algorithm's design follows these steps:</p>
+    <ol>
+        <li>Identify edges by calculating unique edges from the mesh faces.</li>
+        <li>Classify edges as interior or boundary.</li>
+        <li>Create odd vertices by averaging the positions of the vertices at the ends of each edge.</li>
+        <li>Adjust vertex positions based on their neighboring vertices and the valence (number of connecting edges).</li>
+    </ol>
+    <h2>Algorithm</h2>
+    <p>
+        In Loop subdivision, new vertices (called "odd" vertices) are added along the edges of the mesh, and the positions of the original vertices (called "even" vertices) are updated. The new vertex positions are computed using weighted averages of nearby vertices.
+    </p>
+    <p>
+        For an edge vertex <i>E</i>, the new position is calculated using the positions of the two vertices <i>V<sub>1</sub></i> and <i>V<sub>2</sub></i> at the ends of the edge and the positions of the opposite vertices <i>O<sub>1</sub></i> and <i>O<sub>2</sub></i> of the adjacent faces:
+    </p>
+    <p>
+        <i>E</i> = <sup>3</sup>&frasl;<sub>8</sub>(<i>V<sub>1</sub></i> + <i>V<sub>2</sub></i>) + <sup>1</sup>&frasl;<sub>8</sub>(<i>O<sub>1</sub></i> + <i>O<sub>2</sub></i>)
+    </p>
+    <p>
+        For an original vertex <i>V</i>, the new position depends on the valence (number of connecting edges) of the vertex. If the valence is <i>n</i>, the updated position <i>V'</i> is given by:
+    </p>
+    <p>
+        <i>V'</i> = (1 - <i>nβ</i>)<i>V</i> + <i>β</i> &Sigma;<sub>i=1</sub><sup>n</sup><i>V<sub>i</sub></i>
+    </p>
+    <p>
+        where <i>V<sub>i</sub></i> are the adjacent vertices to <i>V</i>, and <i>β</i> is a coefficient that depends on <i>n</i>. A common choice for <i>β</i> is:
+    </p>
+    <p>
+        <i>β</i> = <sup>1</sup>&frasl;<sub>n</sub>(<sup>5</sup>&frasl;<sub>8</sub> - (<sup>3</sup>&frasl;<sub>8</sub> + <sup>1</sup>&frasl;<sub>4</sub> cos(<sup>2π</sup>&frasl;<sub>n</sub>))<sup>2</sup>)
+    </p>
+    <p>The algorithm includes the following steps:</p>
+    <ol>
+        <li><strong>Splitting</strong>: Each mesh edge is split by adding a new vertex at the midpoint.</li>
+        <li><strong>Averaging</strong>: The positions of the new and existing vertices are updated using weighted averages.</li>
+        <li><strong>Face Creation</strong>: New faces are formed by connecting the new edge vertices with the updated original vertices.</li>
+    </ol>
+    <h2>Implement Details</h2>
+    <p>
+        The code follows the Loop subdivision steps:
+    </p>
+    <ol>
+        <li>
+            <strong>Preparing geometry</strong>: Extracting vertices, faces, and calculating edges.
+        </li>
+        <li>
+            <strong>Subdividing</strong>:
+            <ul>
+                <li>Step 1: Adding odd vertices.</li>
+                <li>Step 2: Adjusting odd vertices using adjacent face vertices.</li>
+                <li>Step 3: Updating even vertices using neighborhood averaging and a beta coefficient.</li>
+                <li>Step 1+: Finalizing the subdivision by constructing a new list of vertices and faces.</li>
+            </ul>
+        </li>
+    </ol>
+    <h2>Special Handling for Boundary Conditions</h2>
+    <p>
+        The code addresses boundary edges differently:
+    </p>
+    <ul>
+        <li>Odd vertices on boundary edges are placed at the exact midpoint without further adjustment.</li>
+        <li>Even vertices on boundaries are updated using a different weighting, ensuring the boundary's shape is preserved.</li>
+    </ul>
+    <h2>Results</h2>
+    <p>
+        The result of applying the Loop Subdivision process is a mesh with a higher density of vertices and faces, approximating a smooth surface. With each iteration, the mesh becomes smoother and better represents the intended geometric form. Extraordinary vertices are handled to ensure that the surface remains smooth and well-defined, despite differences in vertex valence. The final mesh is more detailed and suitable for high-quality visual applications.
+    </p>
+    <div class="subdivision-container">
+        <div id="container0"></div>
+        <div id="container1"></div>
+    </div>
+    <h2>Quadric Error Mesh Decimation</h2>
+    <p>
+        <b>Algorithm</b>
+        <br><br>
+        <b>Implement Details</b>
+        <h2>Step 1: Initialization</h2>
+<p>
+    The initialization of quadric matrices for vertices happens in the <code>compute_Q_for_each_vertex</code> method. This method computes the quadric error matrices based on the adjacent faces for each vertex in the mesh.
+</p>
 
-		</p>
-		<h2>Loop Subdivision</h2>
-			<p>
-				<b>Background</b>: Loop Subdivision is a surface subdivision scheme used to create smooth surfaces from coarse polygonal geometry. It's used in computer graphics for models and animations where a smoother surface representation is required. It adds new vertices (odd) along edges and updates the position of original vertices (even).
-				<br><br>
-				<b>Data Structure</b>: The implementation utilizes vertices (points in 3D space), faces (triangles formed by these points), and edges (lines connecting two vertices). These structures are crucial for the subdivision process, allowing for the detailed manipulation and refinement of the mesh.
-				<br><br>
-				<b>Design Logic</b>: The algorithm's logic includes edge identification and classification, vertex classification into even (original) and odd (new), creation and adjustment of new vertices, update of original vertex positions, and mesh reconstruction. This structured approach ensures the mesh is refined appropriately.
-				<br><br>
-				<b>Algorithm</b>: The Loop Subdivision method increases mesh smoothness by subdividing triangles into smaller ones and repositioning vertices. It identifies edges, classifies them, creates new vertices at midpoints, adjusts these positions for interior edges, updates original vertices based on neighbors, and applies special rules for boundary conditions.
-				<br><br>
-				<b>Implement Details</b>: Initially, the mesh's vertices, faces, and derived edges are prepared. Unique edges are identified, classified as interior or boundary, and new vertices are created at their midpoints. Positions of new vertices on interior edges are adjusted based on adjacent vertices. Original vertices are updated based on their neighboring vertices, with boundary vertices receiving special treatment to ensure smooth boundaries. The mesh is reconstructed with updated vertices and faces, resulting in a refined model.
-				<br><br>
-				<b>Special Handling for Boundary Conditions</b>: Boundary edges and vertices are treated specially to preserve the mesh shape. New vertices on boundary edges are placed at midpoints without further adjustment. Original vertices on the boundary are repositioned based on a weighted average of their position and their neighbors on the boundary, ensuring the mesh boundary remains smooth.
-				<br><br>
-				<b>Results</b>: Applying Loop Subdivision results in a mesh with increased vertex count and triangle density, leading to smoother surfaces and more rounded edges. The refined mesh retains the original shape but exhibits enhanced smoothness and detail, suitable for high-quality visual representations in computer graphics and animation.
-			</p>
+<h2>Step 2: Pair Selection</h2>
+<p>
+    The code does not explicitly show a pair selection method. However, it can be inferred that all edges are considered potential pairs for contraction since they are all pushed onto a heap, <code>E_heap</code>, as part of the error computation.
+</p>
 
-		
-		<div class="subdivision-container">
-			<div id="container0"></div>
-			<div id="container1"></div>
-	
-		</div>
-		<h2>Quadric Error Mesh Decimation</h2>
-		<p>
-			<b>Algorithm </b>
-			<br><br>
-			<b>Implement Details </b>
-			<br><br>
-			<b>Results </b>
+<h2>Step 3: Calculate Contraction Costs</h2>
+<p>
+    The <code>compute_E_for_every_possible_pairs</code> method evaluates the cost of contracting each edge pair. It calculates the error metric for each vertex pair that could potentially be collapsed, which is the sum of squared distances from the vertex to all planes of adjacent faces.
+</p>
 
-		</p>
-		<div class="container-div">
-			<div id="container2"></div>
-			<div id="container3"></div>
-			<div id="container4"></div>
-			<div id="container5"></div>
-			<div id="container6"></div>
-			<div id="container7"></div>
-		</div>
-		<script type="module" src="js/assignment1.js"></script>
-	</body>
+<h2>Step 4: Optimal Contraction Target</h2>
+<p>
+    While the code does not explicitly show an analytical calculation for the optimal contraction target, it does consider the midpoint heuristic when <code>midpoint=True</code>. If not using the midpoint, it attempts to compute the optimal point by minimizing the quadric error, which is in line with finding the optimal contraction target.
+</p>
+
+<h2>Step 5: Heap Structure</h2>
+<p>
+    The <code>compute_E_for_every_possible_pairs</code> method initializes a min-heap (priority queue) with all potential edge collapses, sorted by their contraction costs.
+</p>
+
+<h2>Step 6: Iterative Contraction</h2>
+<p>
+    The <code>collapse_minimum_error_vertex</code> method performs the iterative contraction of vertex pairs. It pops pairs from the heap and collapses the edge with the lowest error, and then updates the quadric matrices and costs for affected vertex pairs.
+</p>
+
+<h2>Step 7: Update Costs and Repeat</h2>
+<p>
+    After each collapse, the heap is updated with the new error calculations, which indicates that the costs are being recalculated and the heap is adjusted accordingly.
+</p>
+
+<h2>Step 8: Stopping Condition</h2>
+<p>
+    The loop in the <code>collapse_minimum_error_vertex</code> method continues until the desired level of simplification is reached (i.e., <code>target_v</code> vertices remain).
+</p>
+
+        <br><br>
+        <b>Results</b> A sequence of approximations generated using our algorithm. The original model on the left has 5,804 faces. The approximations to the right have 994, 532, 248, and 64 faces respectively
+    </p>
+    <div class="container-div">
+        <div id="container2"></div>
+        <div id="container3"></div>
+        <div id="container4"></div>
+        <div id="container5"></div>
+        <div id="container6"></div>
+        <div id="container7"></div>
+    </div>
+    <script type="module" src="js/assignment1.js"></script>
+</body>
 </html>
