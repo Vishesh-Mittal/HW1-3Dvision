@@ -35,7 +35,7 @@
 </head>
 <body>
     <h1 style="text-align: center;">Assignment 1: Surface Mesh Simplification and Subdivision</h1>
-    <h2>Introduction</h2>
+    <!-- <h2>Introduction</h2>
     <p>
         For this assignment, you will be implementing two algorithms covering:
         1. Loop Subdivision
@@ -49,7 +49,7 @@
         <b>How to Submit:</b> Please submit this template file along with your implementation as a zip file. The zip file should contain your source code, the generated results in OBJ mesh format, and a report that has been modified using this HTML file. The report should comprise your results and a concise explanation of your implementation. Alternatively, you may choose to create a GitHub repository containing all these elements and provide a link for submission.
         <br><br>
         <b>Grading:</b> The grading is based on the correctness of your implementation. You are encouraged to use the visualization tool to debug your implementation. You can also use the visualization tool to test your implementation on other 3D models. You can find an example of 3D model in the "./assets" folder.
-    </p>
+    </p> -->
     <h2>Loop Subdivision</h2>
     <h2>Background</h2>
     <p>
@@ -136,75 +136,77 @@
     </div>
     <h2>Quadric Error Mesh Decimation</h2>
     <p>
-        <b>Algorithm</b>
-        To implement a mesh decimation algorithm based on quadratic error metrics in Python, you can follow these steps:
-Step 1: Define the Quadric Error Metric
-The quadric error metric for a vertex is defined by a symmetric 4x4 matrix QQ that characterizes the error at that vertex. The error for a vertex v=[vx,vy,vz,1]Tv=[vx​,vy​,vz​,1]T is given by the quadratic form ϵ(v)=vTQvϵ(v)=vTQv2
-.
-Step 2: Initialize the Quadrics for Each Vertex
-For each vertex in the mesh, compute the initial quadric matrix QQ by summing the quadrics of the planes of the triangles that meet at that vertex2
-.
-Step 3: Pair Selection and Contraction
-Select all valid pairs of vertices that can be contracted. For each pair, compute the optimal contraction target that minimizes the combined error. The cost of contracting a vertex pair (v1,v2)(v1​,v2​) to a new vertex vˉvˉ is defined as vˉT(Q1+Q2)vˉvˉT(Q1​+Q2​)vˉ, where vˉvˉ is the position of the new vertex2
-.
-Step 4: Error Computation and Heap
-Place all vertex pairs in a priority queue (heap) based on their error. The pair with the least cost will be at the top of the heap2
-.
-Step 5: Iterative Contraction
-Iteratively remove the pair with the least cost from the heap and perform the contraction. Update the costs of all valid pairs involving the contracted vertices2
-.
-Step 6: Termination
-Continue the contraction process until the desired level of simplification is reached, which could be a target number of vertices or a reduction percentage2
-.
-Step 7: Handling Boundaries and Features
-To preserve mesh features such as boundaries, seams, and UV foldovers, you may need to adjust the error computation to prevent certain vertices from being decimated3
-.
-Step 8: Output
-Once the desired simplification level is achieved, output the simplified mesh with the updated vertex positions and connectivity.
+        <h3>Algorithm</h3>
+        <p>To implement a mesh decimation algorithm based on quadratic error metrics in Python, you can follow these steps:</p>
+    
+        <h4>Step 1: Define the Quadric Error Metric</h4>
+        <p>The quadric error metric for a vertex is defined by a symmetric 4x4 matrix Q that characterizes the error at that vertex. The error for a vertex v is given by the quadratic form e(v) = v<sup>T</sup>Qv.</p>
+        
+        <h4>Step 2: Initialize the Quadrics for Each Vertex</h4>
+        <p>For each vertex in the mesh, compute the initial quadric matrix Q by summing the quadrics of the planes of the triangles that meet at that vertex.</p>
+        
+        <h4>Step 3: Pair Selection and Contraction</h4>
+        <p>Select all valid pairs of vertices that can be contracted. For each pair, compute the optimal contraction target that minimizes the combined error. The cost of contracting a vertex pair (v1, v2) to a new vertex v̄ is defined as v̄<sup>T</sup>(Q1 + Q2)v̄, where v̄ is the position of the new vertex.</p>
+        
+        <h4>Step 4: Error Computation and Heap</h4>
+        <p>Place all vertex pairs in a priority queue (heap) based on their error. The pair with the least cost will be at the top of the heap.</p>
+        
+        <h4>Step 5: Iterative Contraction</h4>
+        <p>Iteratively remove the pair with the least cost from the heap and perform the contraction. Update the costs of all valid pairs involving the contracted vertices.</p>
+        
+        <h4>Step 6: Termination</h4>
+        <p>Continue the contraction process until the desired level of simplification is reached, which could be a target number of vertices or a reduction percentage.</p>
+        
+        <h4>Step 7: Handling Boundaries and Features</h4>
+        <p>To preserve mesh features such as boundaries, seams, and UV foldovers, you may need to adjust the error computation to prevent certain vertices from being decimated.</p>
+        
+        <h4>Step 8: Output</h4>
+        <p>Once the desired simplification level is achieved, output the simplified mesh with the updated vertex positions and the mesh.</p>
+        
         <br><br>
-        <b>Implement Details</b>
-        <h2>Step 1: Initialization</h2>
+        <h3>Implement Details</h3>
+        <h4>Step 1: Initialization</h4>
 <p>
     The initialization of quadric matrices for vertices happens in the <code>compute_Q_for_each_vertex</code> method. This method computes the quadric error matrices based on the adjacent faces for each vertex in the mesh.
 </p>
 
-<h2>Step 2: Pair Selection</h2>
+<h4>Step 2: Pair Selection</h4>
 <p>
     The code does not explicitly show a pair selection method. However, it can be inferred that all edges are considered potential pairs for contraction since they are all pushed onto a heap, <code>E_heap</code>, as part of the error computation.
 </p>
 
-<h2>Step 3: Calculate Contraction Costs</h2>
+<h4>Step 3: Calculate Contraction Costs</h4>
 <p>
     The <code>compute_E_for_every_possible_pairs</code> method evaluates the cost of contracting each edge pair. It calculates the error metric for each vertex pair that could potentially be collapsed, which is the sum of squared distances from the vertex to all planes of adjacent faces.
 </p>
 
-<h2>Step 4: Optimal Contraction Target</h2>
+<h4>Step 4: Optimal Contraction Target</h4>
 <p>
     While the code does not explicitly show an analytical calculation for the optimal contraction target, it does consider the midpoint heuristic when <code>midpoint=True</code>. If not using the midpoint, it attempts to compute the optimal point by minimizing the quadric error, which is in line with finding the optimal contraction target.
 </p>
 
-<h2>Step 5: Heap Structure</h2>
+<h4>Step 5: Heap Structure</h4>
 <p>
     The <code>compute_E_for_every_possible_pairs</code> method initializes a min-heap (priority queue) with all potential edge collapses, sorted by their contraction costs.
 </p>
 
-<h2>Step 6: Iterative Contraction</h2>
+<h4>Step 6: Iterative Contraction</h4>
 <p>
     The <code>collapse_minimum_error_vertex</code> method performs the iterative contraction of vertex pairs. It pops pairs from the heap and collapses the edge with the lowest error, and then updates the quadric matrices and costs for affected vertex pairs.
 </p>
 
-<h2>Step 7: Update Costs and Repeat</h2>
+<h4>Step 7: Update Costs and Repeat</h4>
 <p>
     After each collapse, the heap is updated with the new error calculations, which indicates that the costs are being recalculated and the heap is adjusted accordingly.
 </p>
 
-<h2>Step 8: Stopping Condition</h2>
+<h4>Step 8: Stopping Condition</h4>
 <p>
     The loop in the <code>collapse_minimum_error_vertex</code> method continues until the desired level of simplification is reached (i.e., <code>target_v</code> vertices remain).
 </p>
 
         <br><br>
-        <b>Results</b> A sequence of approximations generated using our algorithm. The original model on the left has 5,804 faces. The approximations to the right have 994, 532, 248, and 64 faces respectively
+        <b>Results</b> The Quadric Error Metrics (QEM) algorithm has been applied to a 3D mesh to produce simplified models at varying levels of detail, effectively reducing the mesh's complexity while preserving its shape and appearance. This process involves collapsing the least significant edges based on an error metric that quantifies deviation from the original surface. Starting with the original model, subsequent simplifications include a loop subdivision model with 317,952 faces, followed by QEM-produced models at four distinct levels of detail: 994 faces, 532 faces, 248 faces, and 64 faces. These stages represent a gradual decrease in detail, from minor alterations in mesh complexity to a significantly abstracted form retaining only the most basic features. The QEM algorithm thus offers a versatile approach to generating simplified meshes for various applications, ranging from real-time graphics rendering to high-quality close-up views, by adjusting the level of detail to balance performance and visual fidelity.
     </p>
     <div class="container-div">
         <div id="container2"></div>
