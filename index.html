@@ -137,6 +137,30 @@
     <h2>Quadric Error Mesh Decimation</h2>
     <p>
         <b>Algorithm</b>
+        To implement a mesh decimation algorithm based on quadratic error metrics in Python, you can follow these steps:
+Step 1: Define the Quadric Error Metric
+The quadric error metric for a vertex is defined by a symmetric 4x4 matrix QQ that characterizes the error at that vertex. The error for a vertex v=[vx,vy,vz,1]Tv=[vx​,vy​,vz​,1]T is given by the quadratic form ϵ(v)=vTQvϵ(v)=vTQv2
+.
+Step 2: Initialize the Quadrics for Each Vertex
+For each vertex in the mesh, compute the initial quadric matrix QQ by summing the quadrics of the planes of the triangles that meet at that vertex2
+.
+Step 3: Pair Selection and Contraction
+Select all valid pairs of vertices that can be contracted. For each pair, compute the optimal contraction target that minimizes the combined error. The cost of contracting a vertex pair (v1,v2)(v1​,v2​) to a new vertex vˉvˉ is defined as vˉT(Q1+Q2)vˉvˉT(Q1​+Q2​)vˉ, where vˉvˉ is the position of the new vertex2
+.
+Step 4: Error Computation and Heap
+Place all vertex pairs in a priority queue (heap) based on their error. The pair with the least cost will be at the top of the heap2
+.
+Step 5: Iterative Contraction
+Iteratively remove the pair with the least cost from the heap and perform the contraction. Update the costs of all valid pairs involving the contracted vertices2
+.
+Step 6: Termination
+Continue the contraction process until the desired level of simplification is reached, which could be a target number of vertices or a reduction percentage2
+.
+Step 7: Handling Boundaries and Features
+To preserve mesh features such as boundaries, seams, and UV foldovers, you may need to adjust the error computation to prevent certain vertices from being decimated3
+.
+Step 8: Output
+Once the desired simplification level is achieved, output the simplified mesh with the updated vertex positions and connectivity.
         <br><br>
         <b>Implement Details</b>
         <h2>Step 1: Initialization</h2>
